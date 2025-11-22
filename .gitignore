@@ -211,3 +211,6 @@ __marimo__/
 
 # ZIP files
 *.zip
+
+# Generated
+.vscode
