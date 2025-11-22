@@ -6,7 +6,7 @@ Utilities
 import json
 
 from rapidfuzz import process, fuzz
-
+from datetime import datetime
 
 def info(message):
     """
@@ -69,17 +69,11 @@ def get_keys(data: dict) -> set:
             keys.update(get_keys(item))
     return keys
 
-def get_close_matches_rapidfuzz(keyword: str, keys: list, n: int, cutoff: float):
-    close_matches = process.extract(
-            keyword,
-            keys,
-            scorer=fuzz.WRatio,
-            limit=n,
-            score_cutoff=int(cutoff * 100)
-        )
-    
-    # Sorting from highest to lowest score
-    return sorted(close_matches, key=lambda x: (-x[1], x[0]))
+def get_precise_time():
+    """
+    Get the precise time up to microsecond precision
+    """
+    return datetime.now()
 
 def test_utils():
     info("This is an info message.")

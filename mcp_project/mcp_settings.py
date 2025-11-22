@@ -9,8 +9,10 @@ SSE = "sse"
 PROTOCOL = "PROTOCOL"
 PORT = "PORT"
 
-# User settings here
+# User settings from this point onward
 SETTINGS = {
     PROTOCOL : STDIO,
     PORT     : "5500"
 }
+
+DEBUG = True

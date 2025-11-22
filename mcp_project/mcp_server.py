@@ -3,13 +3,17 @@ MCP Server
 @author: GUU8HC
 """
 
+# Standard imports
 from fastmcp import FastMCP
 
+# Import MCP settings
 from mcp_transport_configurator import configure_mcp
 from mcp_settings import SETTINGS, PROTOCOL, STDIO, SSE, PORT
-from paramdef_handler.mcp_utils import get_precise_time
-from tree_gen import convert_paramdef_to_json
-from paramdef_utils import (
+
+# Import tools
+from utils.generic_utils import get_precise_time
+from paramdef_handler.tree_gen import convert_paramdef_to_json
+from paramdef_handler .paramdef_utils import (
     get_definition,
     get_definition_path_difflib,
     get_definition_path_rapidfuzz

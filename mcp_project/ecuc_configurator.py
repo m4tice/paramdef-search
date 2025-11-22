@@ -5,8 +5,8 @@
 import json
 from pathlib import Path
 
-from generic_utils import info, debug, error, export2json
-from sie_settings import DEBUG
+from utils.generic_utils import info, debug, error, export2json
+from mcp_settings import DEBUG
 
 class ECUCConfigurator:
     """
