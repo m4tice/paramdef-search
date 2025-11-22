@@ -30,8 +30,8 @@ def configure_mcp():
         config = {
             "servers": {
                 "sie-mcp-server": {
-                    "command": "${workspaceFolder}/.venv/bin/python",
-                    "args": ["mcp_server.py"],
+                    "command": "${workspaceFolder}/.venv/Scripts/python",
+                    "args": ["paramdef_handler/mcp_server.py"],
                     "env": {
                         "PYTHONPATH": "${workspaceFolder}"
                     }
