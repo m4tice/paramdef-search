@@ -6,6 +6,7 @@ This script updates the mcp.json file based on the protocol setting in mcp_setti
 
 import json
 from mcp_settings import SETTINGS, PROTOCOL, STDIO, SSE, PORT
+import os
 
 def configure_mcp():
     """
@@ -13,6 +14,9 @@ def configure_mcp():
     """
     
     mcp_json_path = ".vscode/mcp.json"
+    
+    # Create .vscode folder if it doesn't exist
+    os.makedirs(os.path.dirname(mcp_json_path), exist_ok=True)
     
     # Create configuration based on protocol
     if SETTINGS[PROTOCOL] == SSE:
