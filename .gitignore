@@ -208,3 +208,6 @@ __marimo__/
 
 # ARXML
 *.arxml
+
+# ZIP files
+*.zip
