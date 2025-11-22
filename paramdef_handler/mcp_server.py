@@ -7,7 +7,7 @@ from fastmcp import FastMCP
 
 from mcp_transport_configurator import configure_mcp
 from mcp_settings import SETTINGS, PROTOCOL, STDIO, SSE, PORT
-from mcp_util import get_precise_time
+from paramdef_handler.mcp_utils import get_precise_time
 from tree_gen import convert_paramdef_to_json
 from paramdef_utils import (
     get_definition,
