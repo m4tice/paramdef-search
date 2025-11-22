@@ -1,0 +1,8 @@
+# Model Context Protocol (MCP)
+fastmcp
+
+# Supports
+rapidfuzz
+
+# Testing
+pytest
