@@ -12,7 +12,7 @@ from mcp_settings import SETTINGS, PROTOCOL, STDIO, SSE, PORT
 
 # Import tools
 from utils.generic_utils import get_precise_time
-from paramdef_handler.tree_gen import convert_paramdef_to_json
+from paramdef_handler.paramdef_arxml2json import convert_paramdef_to_json
 from paramdef_handler .paramdef_utils import (
     get_definition,
     get_definition_path_difflib,
@@ -175,7 +175,7 @@ def create_ecuc_configuration(path: str, names: dict):
 
     configurator = ECUCConfigurator()
     config = configurator.configure(path, names)
-    configurator.save_or_merge("ecuc_config.json", config)
+    configurator.save_or_merge("_out/ecuc_config.json", config)
     return config
 
 if __name__ == "__main__":

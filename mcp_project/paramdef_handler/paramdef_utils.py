@@ -9,6 +9,16 @@ import json
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from pathlib import Path
+from rapidfuzz import process, fuzz
+from difflib import get_close_matches
+
+from paramdef_handler.paramdef_arxml2json import convert_paramdef_to_json
+from paramdef_handler.paramdef_settings import (
+    DIFFLIB_NUMBER_OF_RESULTS,
+    DIFFLIB_CUTOFF,
+    RAPIDFUZZ_NUMBER_OF_RESULTS,
+    RAPIDFUZZ_CUTOFF
+)
 from utils.generic_utils import (
     info,
     debug,
@@ -16,22 +26,11 @@ from utils.generic_utils import (
     get_keys,
     )
 
-from rapidfuzz import process, fuzz
-from difflib import get_close_matches
-
-from paramdef_handler.tree_gen import convert_paramdef_to_json
-from paramdef_handler.paramdef_settings import (
-    DIFFLIB_NUMBER_OF_RESULTS,
-    DIFFLIB_CUTOFF,
-    RAPIDFUZZ_NUMBER_OF_RESULTS,
-    RAPIDFUZZ_CUTOFF
-)
-
 def get_all_paramdef_files():
     """
     Get all param definition JSON files in the workspace
     """
-    workspace_root = Path(__file__).resolve().parents[0].parent
+    workspace_root = Path(__file__).resolve().parents[0].parent.parent
     info(f"Searching for param definition files in workspace: {workspace_root}")
     files = list(workspace_root.glob("**/*[Pp]aram[Dd]ef*.arxml"))
     return files
