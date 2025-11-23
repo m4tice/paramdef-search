@@ -167,4 +167,5 @@ def get_definition_path_rapidfuzz(keyword: str):
                         "definition_path": "/".join(path),
                         "similarity_score": score / 100.0
                     })
-    return paths
+    # Sort results by similarity score (highest first), then by definition path        
+    return sorted(paths, key=lambda x: (-x.get("similarity_score", 0), x.get("definition_path", "")))
