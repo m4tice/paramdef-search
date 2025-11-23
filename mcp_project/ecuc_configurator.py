@@ -91,7 +91,8 @@ class ECUCConfigurator:
 
 
 if __name__ == "__main__":
-    json_filename = "ecuc_config.json"
+    generated_files_dir = Path(__file__).parent / "_out"
+    json_filename = generated_files_dir / "ecuc_config.json"
     configurator = ECUCConfigurator()
     config = configurator.configure("/com/comconfig/comipdu", {"comipdu": "ESP_19", "comconfig": "ComConfig_0"})
     # error(config)
