@@ -26,7 +26,7 @@ def error(message):
     """
     print(f"\033[91m[ERROR] {message}\033[0m")
 
-def export2json(filename, data, indent: int = 2, use_tabs: bool = False):
+def export2json(filename, data, indent: int = 4, use_tabs: bool = False):
     # Convert VersionObject instances to dictionaries for JSON serialization
     if isinstance(data, list):
         result_dict = [item.model_dump() if hasattr(item, 'model_dump') else item for item in data]
