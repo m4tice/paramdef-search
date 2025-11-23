@@ -14,7 +14,7 @@ from mcp_settings import SETTINGS, PROTOCOL, STDIO, SSE, PORT
 from utils.generic_utils import get_precise_time
 from paramdef_handler.paramdef_arxml2json import convert_paramdef_to_json
 from paramdef_handler .paramdef_utils import (
-    get_definition,
+    get_definition_files,
     get_definition_path_difflib,
     get_definition_path_rapidfuzz
 )
@@ -71,7 +71,7 @@ def get_definition_file_from_keyword(keyword: str):
     Get the file contains generic knowledge such as parameter definition, definition path, multiplicity, etc.
     for a given keyword from param definition JSON files.
     """
-    return get_definition(keyword)
+    return get_definition_files(keyword)
 
 @app.tool(
         description="""

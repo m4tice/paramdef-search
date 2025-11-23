@@ -47,7 +47,7 @@ def get_close_matches_rapidfuzz(keyword: str, keys: list, n: int, cutoff: float)
     # Sorting from highest to lowest score
     return sorted(close_matches, key=lambda x: (-x[1], x[0]))
 
-def get_definition(keyword: str):
+def get_definition_files(keyword: str):
     """
     Search all param definition JSON files in the workspace for a given key.
 
