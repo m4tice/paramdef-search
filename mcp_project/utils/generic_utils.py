@@ -69,6 +69,12 @@ def get_keys(data: dict) -> set:
             keys.update(get_keys(item))
     return keys
 
+def load_json(file_path: str):
+    import json
+    with open(file_path, 'r') as f:
+        data = json.load(f)
+    return data
+
 def get_precise_time():
     """
     Get the precise time up to microsecond precision
