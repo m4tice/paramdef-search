@@ -33,19 +33,20 @@ def test_get_all_paramdef_files():
 @pytest.mark.skipif(not found_paramdef_files,
                     reason=f"No '*ParamDef*.arxml' files found in {PARENT} directory")
 def test_get_definition_path_rapidfuzz():
+    from mcp_project.utils.generic_utils import strip_result
     from mcp_project.paramdef_handler.paramdef_utils import get_definition_path_rapidfuzz
 
     keyword_1 = "comipdudirection"
     keyword_2 = "pdurgeneral"
-    keywrod_3 = "nonexistentkeyword"
+    keyword_3 = "nonexistentkeyword"
 
-    def strip_result(keyword):
-        result = get_definition_path_rapidfuzz(keyword)
-        return result[0]['file'].split('\\')[-1].lower() if result else None
+    result_1 = get_definition_path_rapidfuzz(keyword_1)
+    result_2 = get_definition_path_rapidfuzz(keyword_2)
+    result_3 = get_definition_path_rapidfuzz(keyword_3)
 
-    assert strip_result(keyword_1) == "com_ecucparamdef.arxml"
-    assert strip_result(keyword_2) == "pdur_ecucparamdef.arxml"
-    assert strip_result(keywrod_3) is None
+    assert strip_result(result_1) == "com_ecucparamdef.arxml"
+    assert strip_result(result_2) == "pdur_ecucparamdef.arxml"
+    assert strip_result(result_3) is None
 
 # TESTS
 def test_get_close_matches_rapidfuzz():

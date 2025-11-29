@@ -80,5 +80,11 @@ def test_utils():
     debug("This is a debug message.")
     error("This is an error message.")
 
+def strip_result(result: str) -> str:
+    if result:
+        split_char = '\\' if '\\' in result[0]['file'] else '/'
+        return result[0]['file'].split(split_char)[-1].lower()
+    return None
+
 if __name__ == "__main__":
     test_utils()
