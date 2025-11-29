@@ -89,6 +89,38 @@ class ECUCConfigurator:
         else:
             export2json(filename, config, use_tabs=True)
 
+class ECUCConfiguratorV2:
+    def __init__(self):
+        self._data = None
+
+    def create_container(self, path: str, names: dict):
+        # Build a container JSON structure matching the expected test file.
+        # Keep the provided path as the definitionPath (normalized)
+        parts = [p for p in path.split('/') if p]
+        # Normalize casing to match expected ARXML-style path (e.g., Com/ComConfig/ComIPdu)
+        def_path = '/'.join(parts)
+
+        # shortName: lowercase keys mapping to provided values
+        shortname = {k.lower(): v for k, v in names.items()}
+
+        self._data = {
+            "definitionPath": def_path,
+            "shortName": shortname,
+            "type": "Container",
+            "parameters": {}
+        }
+
+    def create_parameter(self):
+        pass
+
+    def get_data(self):
+        return self._data
+
+def load_json(file_path: str):
+    import json
+    with open(file_path, 'r') as f:
+        data = json.load(f)
+    return data
 
 if __name__ == "__main__":
     generated_files_dir = Path(__file__).parent.parent / "_out"

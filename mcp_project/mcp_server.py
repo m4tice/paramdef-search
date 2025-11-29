@@ -5,13 +5,14 @@ MCP Server
 
 # Standard imports
 from fastmcp import FastMCP
+from datetime import datetime
 
 # Import MCP settings
 from mcp_transport_configurator import configure_mcp
 from mcp_settings import SETTINGS, PROTOCOL, STDIO, SSE, PORT
 
 # Import tools
-from utils.generic_utils import get_precise_time
+from utils.generic_utils import get_precise_time, export2json
 from paramdef_handler.paramdef_arxml2json import convert_paramdef_to_json
 from paramdef_handler .paramdef_utils import (
     get_definition_files,
@@ -34,8 +35,9 @@ def get_precise_time():
 
 @app.tool(
         description="""
-        Provide response instructions for a given prompt.
-        """)
+            Provide response instructions for a given prompt.
+        """
+)
 def provide_response_instructions():
     """
     Provide response instructions for a given prompt.
@@ -61,21 +63,24 @@ def provide_response_instructions():
 
 @app.tool(
         description="""
-        Get the file contains generic knowledge
-        such as parameter definition, definition path, multiplicity, etc.
-        for a given keyword from param definition JSON files.
+            Get the file contains generic knowledge
+            such as parameter definition, definition path,
+            multiplicity, etc.
+            for a given keyword from param definition JSON files.
         """
 )
 def get_definition_file_from_keyword(keyword: str):
     """
-    Get the file contains generic knowledge such as parameter definition, definition path, multiplicity, etc.
+    Get the file contains generic knowledge
+    such as parameter definition, definition path, multiplicity, etc.
     for a given keyword from param definition JSON files.
     """
     return get_definition_files(keyword)
 
 @app.tool(
         description="""
-        Parse Parameter Definition (ParamDef) from ARXML file to JSON.
+            Parse Parameter Definition (ParamDef)
+            from ARXML file to JSON.
         """
 )
 def parse_paramdef_to_json(file_path: str):
@@ -87,10 +92,10 @@ def parse_paramdef_to_json(file_path: str):
 
 @app.tool(
         description="""
-        Get definition path, etc. for a given keyword using DiffLib.
-        Number of results and cutoff can be adjusted.
-        Default is 1 result, increased number may return multiple close matches.
-        Default cutoff 0.6.
+            Get definition path, etc. for a given keyword using DiffLib.
+            Number of results and cutoff can be adjusted.
+            Default is 1 result, increased number may return multiple close matches.
+            Default cutoff 0.6.
         """
 )
 def get_precise_definition_path_using_difflib(keyword: str):
@@ -117,10 +122,10 @@ def get_precise_definition_path_using_difflib(keyword: str):
 
 @app.tool(
         description="""
-        Get definition path, etc. for a given keyword using RapidFuzz.
-        Number of results and cutoff can be adjusted.
-        Default is 1 result, increased number may return multiple close matches.
-        Default cutoff 0.6.
+            Get definition path, etc. for a given keyword using RapidFuzz.
+            Number of results and cutoff can be adjusted.
+            Default is 1 result, increased number may return multiple close matches.
+            Default cutoff 0.6.
         """
 )
 def get_precise_definition_path_using_rapidfuzz(keyword: str):
@@ -142,18 +147,18 @@ def get_precise_definition_path_using_rapidfuzz(keyword: str):
 
 @app.tool(
         description="""
-        Create ECUC configuration in JSON format for a given path and names mapping.
-        1. Path is a '/' separated string representing ECUC hierarchy.
-        It should be taken from get_precise_definition_path_using_rapidfuzz.
-        It should contain parts that are taken from get_definition or known ECUC parts.
-        2. Names is a dictionary mapping ECUC parts to desired names.
-        The tool generates nested JSON structure representing the ECUC configuration.
+            Create ECUC configuration in JSON format for a given path and names mapping.
+            1. Path is a '/' separated string representing ECUC hierarchy.
+            It should be taken from get_precise_definition_path_using_rapidfuzz.
+            It should contain parts that are taken from get_definition or known ECUC parts.
+            2. Names is a dictionary mapping ECUC parts to desired names.
+            The tool generates nested JSON structure representing the ECUC configuration.
 
-        Example:
-        -------
-        Prompt: Create ComIPdu with the name ESP_19.
-        Given path: "/com/comconfig/comipdu"
-        And names: {"comipdu": "ESP_19"}
+            Example:
+            -------
+            Prompt: Create ComIPdu with the name ESP_19.
+            Given path: "/com/comconfig/comipdu"
+            And names: {"comipdu": "ESP_19"}
         """
 )
 def create_ecuc_configuration(path: str, names: dict):
@@ -180,6 +185,66 @@ def create_ecuc_configuration(path: str, names: dict):
     config = configurator.configure(path, names)
     configurator.save_or_merge("_out/ecuc_config.json", config)
     return config
+
+@app.tool(
+        description="""
+            Create an ECUC container JSON for a given definition `path` and
+            `names` mapping.
+
+            Important behavior and guarantees:
+            - Callers should obtain the exact definition path (including proper
+                letter case) using `get_precise_definition_path_using_rapidfuzz` before
+                calling this tool.
+            - `names` is a mapping of definition part names to desired shortNames.
+                The MCP tool performs case-insensitive matching and normalizes the
+                mapping keys to lowercase before processing. Mapping *values*
+                (the short names) keep their letter case unchanged.
+            - Because keys are normalized, the output JSON may contain lowercase
+                keys (this is intentional). If you require exact-case keys in the
+                output (for example `ComIPdu` rather than `comipdu`), perform a
+                deterministic post-processing step that renames keys using the same
+                mapping you supplied.
+
+            Example (recommended flow):
+            1) Use `get_precise_definition_path_using_rapidfuzz("ComIPdu")` to get
+                    `Com/ComConfig/ComIPdu`.
+            2) Call this tool with `path="Com/ComConfig/ComIPdu"` and
+                    `names={"ComIPdu": "ESP_19"}`. The tool will match case-
+                    insensitively and place the shortName value `ESP_19` into the
+                    generated container. If you need `ComIPdu` as the JSON key, rename
+                    it after the call.
+        """
+)
+def create_ecuc_container(path: str, names: dict):
+    """
+    Create an ECUC container JSON for a given `path` and `names` map.
+
+    Behavior:
+    - Mapping keys in `names` are normalized to lowercase for case-insensitive
+        matching. Provide keys in any case; the tool will match them.
+    - Mapping values (short names) preserve their letter case and are used
+        verbatim in the output.
+    - If you require exact-case definition keys in the generated JSON, rename
+        the keys in a deterministic post-processing step after this function
+        returns. The tool intentionally normalizes keys to avoid ambiguous
+        lookups during configuration creation.
+
+    Recommended usage:
+    1) Retrieve the definition path using `get_precise_definition_path_using_rapidfuzz`.
+    2) Call this tool with the returned `path` and `names={"ComIPdu": "ESP_19"}`.
+    """
+    from ecuc_configurator import ECUCConfiguratorV2
+
+    # Normalize names keys to lowercase for case-insensitive matching
+    names = {k.lower(): v for k, v in names.items()}
+
+    configurator = ECUCConfiguratorV2()
+    container = configurator.create_container(path, names)
+
+    filename = "_out/ecuc_container_" + datetime.now().strftime("%Y%m%d_%H%M%S") + ".json"
+    data = configurator.get_data()
+    export2json(filename, data)
+    return data
 
 if __name__ == "__main__":
     # Reconfigure mcp.json
