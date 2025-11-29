@@ -214,4 +214,4 @@ __marimo__/
 
 # Generated
 .vscode
-ecuc_config.json
+_out/
