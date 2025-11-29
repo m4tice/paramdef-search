@@ -4,9 +4,11 @@ This script updates the mcp.json file based on the protocol setting in mcp_setti
 @author: GUU8HC
 """
 
-import json
-from mcp_settings import SETTINGS, PROTOCOL, STDIO, SSE, PORT
 import os
+import json
+import platform
+from mcp_settings import SETTINGS, PROTOCOL, STDIO, SSE, PORT
+
 
 def configure_mcp():
     """
@@ -30,11 +32,12 @@ def configure_mcp():
         }
         print(f"Configured MCP for SSE transport on port {PORT}")
     else:
-        # SETTINGS[PROTOCOL] == STDIO    
+        # SETTINGS[PROTOCOL] == STDIO
+        python_parent_dir = "Scripts" if platform.system() == "Windows" else "bin"
         config = {
             "servers": {
                 "sie-mcp-server": {
-                    "command": "${workspaceFolder}/.venv/Scripts/python",
+                    "command": f"${{workspaceFolder}}/.venv/{python_parent_dir}/python",
                     "args": ["mcp_project/mcp_server.py"],
                     "env": {
                         "PYTHONPATH": "${workspaceFolder}"
