@@ -141,8 +141,7 @@ def find_module(root) -> Dict:
     if containers_parent is not None:
         for c in containers_parent:
             cname, cjson = parse_container(c)
-            module.setdefault('containers', {})
-            module['containers'][cname] = cjson
+            module[cname] = cjson
 
     return module_name, module
 
