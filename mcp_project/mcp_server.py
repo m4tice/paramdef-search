@@ -173,6 +173,9 @@ def create_ecuc_configuration(path: str, names: dict):
     """
     from ecuc_configurator import ECUCConfigurator
 
+    # Normalize names keys to lowercase for case-insensitive matching
+    names = {k.lower(): v for k, v in names.items()}
+
     configurator = ECUCConfigurator()
     config = configurator.configure(path, names)
     configurator.save_or_merge("_out/ecuc_config.json", config)

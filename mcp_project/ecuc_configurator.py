@@ -15,14 +15,14 @@ class ECUCConfigurator:
     def __init__(self):
         pass
 
-    def __decide_name(self, part, names):
+    def __decide_name(self, part: str, names: dict) -> str:
         """
         Decide the name for a given part based on provided names dictionary.
         If the part exists in names, use the corresponding name;
         otherwise, use the part itself
         """
-        if part in names.keys():
-            name = names[part]
+        if part.lower() in names.keys():
+            name = names[part.lower()]
             if DEBUG:
                 debug(f"Found name '{name}' for part '{part}'")
         else:
@@ -91,10 +91,10 @@ class ECUCConfigurator:
 
 
 if __name__ == "__main__":
-    generated_files_dir = Path(__file__).parent / "_out"
-    json_filename = generated_files_dir / "ecuc_config.json"
+    generated_files_dir = Path(__file__).parent.parent / "_out"
+    json_filename = generated_files_dir / "ecuc_config2.json"
     configurator = ECUCConfigurator()
-    config = configurator.configure("/com/comconfig/comipdu", {"comipdu": "ESP_19", "comconfig": "ComConfig_0"})
+    config = configurator.configure("Com/ComConfig/ComIPdu", {"comipdu": "ESP_19"})
     # error(config)
 
     # Save or merge generated config into the JSON file
