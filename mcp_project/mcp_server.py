@@ -244,7 +244,7 @@ def get_available_containers(definition_path: str):
     """
     Get available ECUC containers.
     """
-    from mcp_dummy_data import ecuc, explore_tree
+    from mcp_project.model_mngr.mcp_dummy_data import ecuc, explore_tree
 
     return explore_tree(ecuc, definition_path)
     
