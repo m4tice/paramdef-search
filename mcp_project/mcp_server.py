@@ -35,7 +35,7 @@ def get_precise_time():
 
 @app.tool(
     description="""
-        Provide response instructions for a given prompt.
+    Provide response instructions for a given prompt.
     """
 )
 def provide_response_instructions():
@@ -63,44 +63,52 @@ def provide_response_instructions():
 
 @app.tool(
     description="""
-        Provide instructions for some specific common tasks.
-        Common tasks may include:
-        1. Creating ECUC configurations.
+    Provide instructions for some specific common tasks.
+    Common tasks may include:
+    1. Creating ECUC container with optional parameters.
     """
 )
 def provide_task_instructions():
     instructions = {
-        "create_ecuc_configuration": (
-            """Before creating an ECUC configuration, call the get_all_containers tool
+        "create_ecuc_container_with_parameters": (
+            """Before creating an ECUC container with parameters, call the get_all_containers tool
             to retrieve all containers, as users may not provide all the names.
             The strategy is to prioritize action on existing containers
             if dedicated names are not explicitly provided.
-            Then use the `create_ecuc_configuration` tool
-            with reference to the retrieved containers."""
+            Then use the `create_ecuc_container_with_parameters` tool
+            with reference to the retrieved containers.
+            If parameters are provided, ensure they are included in the creation process.
+            If no parameters are specified, proceed with default settings.
+            The user may provide parameters with incorrect names. In this case,
+            try to match the closest valid parameter names by using mcp tools
+            `get_definition_file_from_keyword` and `get_precise_definition_path_using_rapidfuzz`
+            to verify and correct parameter names before proceeding.
+            To avoid multiple files, create all related containers in a single request.
+            """
         ),
     }
     return instructions
 
 @app.tool(
     description="""
-        Get the file contains generic knowledge
-        such as parameter definition, definition path,
-        multiplicity, etc.
-        for a given keyword from param definition JSON files.
+    Get the file contains generic knowledge
+    such as parameter definition, definition path,
+    multiplicity, etc.
+    for a given keyword from param definition JSON files.
     """
 )
 def get_definition_file_from_keyword(keyword: str):
     """
-        Get the file contains generic knowledge
-        such as parameter definition, definition path, multiplicity, etc.
-        for a given keyword from param definition JSON files.
+    Get the file contains generic knowledge
+    such as parameter definition, definition path, multiplicity, etc.
+    for a given keyword from param definition JSON files.
     """
     return get_definition_files(keyword)
 
 @app.tool(
     description="""
-        Parse Parameter Definition (ParamDef)
-        from ARXML file to JSON.
+    Parse Parameter Definition (ParamDef)
+    from ARXML file to JSON.
     """
 )
 def parse_paramdef_to_json(file_path: str):
@@ -112,10 +120,10 @@ def parse_paramdef_to_json(file_path: str):
 
 @app.tool(
     description="""
-        Get definition path, etc. for a given keyword using DiffLib.
-        Number of results and cutoff can be adjusted.
-        Default is 1 result, increased number may return multiple close matches.
-        Default cutoff 0.6.
+    Get definition path, etc. for a given keyword using DiffLib.
+    Number of results and cutoff can be adjusted.
+    Default is 1 result, increased number may return multiple close matches.
+    Default cutoff 0.6.
     """
 )
 def get_precise_definition_path_using_difflib(keyword: str):
@@ -142,10 +150,10 @@ def get_precise_definition_path_using_difflib(keyword: str):
 
 @app.tool(
     description="""
-        Get definition path, etc. for a given keyword using RapidFuzz.
-        Number of results and cutoff can be adjusted.
-        Default is 1 result, increased number may return multiple close matches.
-        Default cutoff 0.6.
+    Get definition path, etc. for a given keyword using RapidFuzz.
+    Number of results and cutoff can be adjusted.
+    Default is 1 result, increased number may return multiple close matches.
+    Default cutoff 0.6.
     """
 )
 def get_precise_definition_path_using_rapidfuzz(keyword: str):
@@ -167,18 +175,18 @@ def get_precise_definition_path_using_rapidfuzz(keyword: str):
 
 @app.tool(
     description="""
-        Create ECUC configuration in JSON format for a given path and names mapping.
-        1. Path is a '/' separated string representing ECUC hierarchy.
-        It should be taken from get_precise_definition_path_using_rapidfuzz.
-        It should contain parts that are taken from get_definition or known ECUC parts.
-        2. Names is a dictionary mapping ECUC parts to desired names.
-        The tool generates nested JSON structure representing the ECUC configuration.
+    Create ECUC configuration in JSON format for a given path and names mapping.
+    1. Path is a '/' separated string representing ECUC hierarchy.
+    It should be taken from get_precise_definition_path_using_rapidfuzz.
+    It should contain parts that are taken from get_definition or known ECUC parts.
+    2. Names is a dictionary mapping ECUC parts to desired names.
+    The tool generates nested JSON structure representing the ECUC configuration.
 
-        Example:
-        -------
-        Prompt: Create ComIPdu with the name ESP_19.
-        Given path: "/com/comconfig/comipdu"
-        And names: {"comipdu": "ESP_19"}
+    Example:
+    -------
+    Prompt: Create ComIPdu with the name ESP_19.
+    Given path: "/com/comconfig/comipdu"
+    And names: {"comipdu": "ESP_19"}
     """
 )
 def create_ecuc_configuration(path: str, names: dict):
@@ -208,25 +216,25 @@ def create_ecuc_configuration(path: str, names: dict):
 
 @app.tool(
     description="""
-        Create an ECUC container JSON for a given definition `path` and `names` mapping.
+    Create an ECUC container JSON for a given definition `path` and `names` mapping.
 
-        Caller MUST perform two MCP calls in this order:
-        1) `get_available_containers(path)` — discover existing container instances
-                for each element in the `path` and obtain the available shortNames.
-        2) `create_ecuc_container(path, names)` — create the requested container.
+    Caller MUST perform two MCP calls in this order:
+    1) `get_available_containers(path)` — discover existing container instances
+            for each element in the `path` and obtain the available shortNames.
+    2) `create_ecuc_container_with_parameters(path, names, parameters)` — create the requested container.
 
-        Behavior expectations:
-        - The caller is responsible for filling any missing parent names using
-            the results of `get_available_containers(path)` before calling this tool.
-        - Keys in `names` are matched case-insensitively; provided values are
-            used verbatim as the new shortName for the target element.
-        - If the caller does not resolve parent names prior to calling this tool,
-            the create operation may fail or produce unintended results.
-        - To implement an alternate resolution policy, call `get_available_containers`
-            yourself and compute the desired parent names prior to calling this tool.
+    Behavior expectations:
+    - The caller is responsible for filling any missing parent names using
+        the results of `get_available_containers(path)` before calling this tool.
+    - Keys in `names` are matched case-insensitively; provided values are
+        used verbatim as the new shortName for the target element.
+    - If the caller does not resolve parent names prior to calling this tool,
+        the create operation may fail or produce unintended results.
+    - To implement an alternate resolution policy, call `get_available_containers`
+        yourself and compute the desired parent names prior to calling this tool.
     """
 )
-def create_ecuc_container(path: str, names: dict):
+def create_ecuc_container_with_parameters(path: str, names: dict, parameters: dict = {}):
     """
     Create an ECUC container JSON for a given `path` and `names` map.
 
@@ -236,7 +244,11 @@ def create_ecuc_container(path: str, names: dict):
     Example flow:
         - call `get_available_containers('Com/ComConfig/ComIPdu')` -> {
                 'Com': ['Com'], 'ComConfig': ['ComConfig_0'], ... }
-        - call `create_ecuc_container('Com/ComConfig/ComIPdu', {'ComIPdu': 'ESP_21_Rx', 'ComConfig': 'ComConfig_0'})`
+        - call `create_ecuc_container_with_parameters(
+                    'Com/ComConfig/ComIPdu',
+                    {'ComIPdu': 'ESP_21_Rx', 'ComConfig': 'ComConfig_0'},
+                    {'ComIPduDirection': 'RECEIVE'}
+                )`
 
     The tool will treat keys case-insensitively and will write the created
     container to the `_out` directory. If any parents are missing from `names`,
@@ -248,7 +260,7 @@ def create_ecuc_container(path: str, names: dict):
     names = {k.lower(): v for k, v in names.items()}
 
     configurator = ECUCConfiguratorV2()
-    container = configurator.create_container(path, names)
+    container = configurator.create_container_with_parameter(path, names, parameters)
 
     filename = "_out/ecuc_container_" + datetime.now().strftime("%Y%m%d_%H%M%S") + ".json"
     data = configurator.get_data()
@@ -257,7 +269,7 @@ def create_ecuc_container(path: str, names: dict):
 
 @app.tool(
     description="""
-        Get available ECUC containers for a given definition path.
+    Get available ECUC containers for a given definition path.
     """
 )
 def get_available_containers(definition_path: str):

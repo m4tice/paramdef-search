@@ -5,8 +5,8 @@
 import json
 from pathlib import Path
 
-from utils.generic_utils import info, debug, error, export2json
-from mcp_settings import DEBUG
+from mcp_project.utils.generic_utils import info, debug, error, export2json
+from mcp_project.mcp_settings import DEBUG
 
 class ECUCConfigurator:
     """
@@ -110,8 +110,22 @@ class ECUCConfiguratorV2:
             "parameters": {}
         }
 
-    def create_parameter(self):
-        pass
+    def create_container_with_parameter(self, path: str, names: dict, param_dict: dict):
+        # Build a container JSON structure matching the expected test file.
+        # Keep the provided path as the definitionPath (normalized)
+        parts = [p for p in path.split('/') if p]
+        # Normalize casing to match expected ARXML-style path (e.g., Com/ComConfig/ComIPdu)
+        def_path = '/'.join(parts)
+
+        # shortName: lowercase keys mapping to provided values
+        shortname = {k.lower(): v for k, v in names.items()}
+
+        self._data = {
+            "definitionPath": def_path,
+            "shortName": shortname,
+            "type": "Container",
+            "parameters": param_dict
+        }
 
     def get_data(self):
         return self._data
