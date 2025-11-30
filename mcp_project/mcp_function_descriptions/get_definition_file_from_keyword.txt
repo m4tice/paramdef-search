@@ -1,0 +1,3 @@
+Get the file contains generic knowledge such as
+parameter definition, definition path, multiplicity, etc.
+for a given keyword from param definition JSON files.

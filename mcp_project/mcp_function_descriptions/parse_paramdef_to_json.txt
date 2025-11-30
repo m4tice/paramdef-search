@@ -1,0 +1,1 @@
+Parse Parameter Definition (ParamDef) from ARXML file to JSON.

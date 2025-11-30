@@ -1,5 +1,5 @@
 ecuc = {
-    "com" : {
+    "Com" : {
         "type" : "Com",
         "containers": {
             "ComConfig_0" : {

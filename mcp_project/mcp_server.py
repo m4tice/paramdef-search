@@ -9,10 +9,10 @@ from datetime import datetime
 
 # Import MCP settings
 from mcp_transport_configurator import configure_mcp
-from mcp_settings import SETTINGS, PROTOCOL, STDIO, SSE, PORT
+from mcp_settings import SETTINGS, PROTOCOL, STDIO, SSE, PORT, DESCRIPTION, DOCSTRING
 
 # Import tools
-from utils.generic_utils import get_precise_time, export2json
+from utils.generic_utils import get_precise_time, export2json, load_json
 from paramdef_handler.paramdef_arxml2json import convert_paramdef_to_json
 from paramdef_handler .paramdef_utils import (
     get_definition_files,
@@ -26,21 +26,29 @@ app = FastMCP()
 
 
 # Tool listing
-@app.tool()
+@app.tool(
+    description=f"{
+        load_json(
+            'mcp_project/mcp_function_descriptions/get_precise_time.json'
+            )[DESCRIPTION]
+        }"
+)
 def get_precise_time():
     """
-    MCP wrapper
+    Get the precise time up to microsecond precision.
     """
     return get_precise_time()
 
 @app.tool(
-    description="""
-    Provide response instructions for a given prompt.
-    """
+    description=f"{
+        load_json(
+            'mcp_project/mcp_function_descriptions/get_response_instructions.json'
+            )[DESCRIPTION]
+        }"
 )
-def provide_response_instructions():
+def get_response_instructions():
     """
-    Provide response instructions for a given prompt.
+    Get response instructions for CoPilot from a given prompt.
     """
     instructions = """
     When responding to prompts, please adhere to the following guidelines:
@@ -62,13 +70,18 @@ def provide_response_instructions():
     return instructions
 
 @app.tool(
-    description="""
-    Provide instructions for some specific common tasks.
+    description=f"{
+        load_json(
+            'mcp_project/mcp_function_descriptions/get_task_instructions.json'
+            )[DESCRIPTION]
+        }"
+)
+def get_task_instructions():
+    """
+    Get instructions for some specific common tasks.
     Common tasks may include:
     1. Creating ECUC container with optional parameters.
     """
-)
-def provide_task_instructions():
     instructions = {
         "create_ecuc_container_with_parameters": (
             """Before creating an ECUC container with parameters, call the get_all_containers tool
@@ -79,10 +92,10 @@ def provide_task_instructions():
             with reference to the retrieved containers.
             If parameters are provided, ensure they are included in the creation process.
             If no parameters are specified, proceed with default settings.
-            The user may provide parameters with incorrect names. In this case,
-            try to match the closest valid parameter names by using mcp tools
+            The user may provide parameters with incorrect names.
+            Therefore those parameters must be validated using mcp tools
             `get_definition_file_from_keyword` and `get_precise_definition_path_using_rapidfuzz`
-            to verify and correct parameter names before proceeding.
+            to retrieve the correct parameter names before proceeding.
             To avoid multiple files, create all related containers in a single request.
             """
         ),
@@ -90,12 +103,11 @@ def provide_task_instructions():
     return instructions
 
 @app.tool(
-    description="""
-    Get the file contains generic knowledge
-    such as parameter definition, definition path,
-    multiplicity, etc.
-    for a given keyword from param definition JSON files.
-    """
+    description=f"{
+        load_json(
+            'mcp_project/mcp_function_descriptions/get_definition_file_from_keyword.json'
+            )[DESCRIPTION]
+        }"
 )
 def get_definition_file_from_keyword(keyword: str):
     """
@@ -106,10 +118,11 @@ def get_definition_file_from_keyword(keyword: str):
     return get_definition_files(keyword)
 
 @app.tool(
-    description="""
-    Parse Parameter Definition (ParamDef)
-    from ARXML file to JSON.
-    """
+    description=f"{
+        load_json(
+            'mcp_project/mcp_function_descriptions/parse_paramdef_to_json.json'
+            )[DESCRIPTION]
+        }"
 )
 def parse_paramdef_to_json(file_path: str):
     """
@@ -119,12 +132,11 @@ def parse_paramdef_to_json(file_path: str):
     return json_data
 
 @app.tool(
-    description="""
-    Get definition path, etc. for a given keyword using DiffLib.
-    Number of results and cutoff can be adjusted.
-    Default is 1 result, increased number may return multiple close matches.
-    Default cutoff 0.6.
-    """
+    description=f"{
+        load_json(
+            'mcp_project/mcp_function_descriptions/get_precise_definition_path_using_difflib.json'
+            )[DESCRIPTION]
+        }"
 )
 def get_precise_definition_path_using_difflib(keyword: str):
     """
@@ -149,12 +161,11 @@ def get_precise_definition_path_using_difflib(keyword: str):
     return get_definition_path_difflib(keyword)
 
 @app.tool(
-    description="""
-    Get definition path, etc. for a given keyword using RapidFuzz.
-    Number of results and cutoff can be adjusted.
-    Default is 1 result, increased number may return multiple close matches.
-    Default cutoff 0.6.
-    """
+    description=f"{
+        load_json(
+            'mcp_project/mcp_function_descriptions/get_precise_definition_path_using_rapidfuzz.json'
+            )[DESCRIPTION]
+        }"
 )
 def get_precise_definition_path_using_rapidfuzz(keyword: str):
     """
@@ -174,20 +185,11 @@ def get_precise_definition_path_using_rapidfuzz(keyword: str):
     return get_definition_path_rapidfuzz(keyword)
 
 @app.tool(
-    description="""
-    Create ECUC configuration in JSON format for a given path and names mapping.
-    1. Path is a '/' separated string representing ECUC hierarchy.
-    It should be taken from get_precise_definition_path_using_rapidfuzz.
-    It should contain parts that are taken from get_definition or known ECUC parts.
-    2. Names is a dictionary mapping ECUC parts to desired names.
-    The tool generates nested JSON structure representing the ECUC configuration.
-
-    Example:
-    -------
-    Prompt: Create ComIPdu with the name ESP_19.
-    Given path: "/com/comconfig/comipdu"
-    And names: {"comipdu": "ESP_19"}
-    """
+    description=f"{
+        load_json(
+            'mcp_project/mcp_function_descriptions/create_ecuc_configuration.json'
+            )[DESCRIPTION]
+        }"
 )
 def create_ecuc_configuration(path: str, names: dict):
     """
@@ -215,24 +217,11 @@ def create_ecuc_configuration(path: str, names: dict):
     return config
 
 @app.tool(
-    description="""
-    Create an ECUC container JSON for a given definition `path` and `names` mapping.
-
-    Caller MUST perform two MCP calls in this order:
-    1) `get_available_containers(path)` — discover existing container instances
-            for each element in the `path` and obtain the available shortNames.
-    2) `create_ecuc_container_with_parameters(path, names, parameters)` — create the requested container.
-
-    Behavior expectations:
-    - The caller is responsible for filling any missing parent names using
-        the results of `get_available_containers(path)` before calling this tool.
-    - Keys in `names` are matched case-insensitively; provided values are
-        used verbatim as the new shortName for the target element.
-    - If the caller does not resolve parent names prior to calling this tool,
-        the create operation may fail or produce unintended results.
-    - To implement an alternate resolution policy, call `get_available_containers`
-        yourself and compute the desired parent names prior to calling this tool.
-    """
+    description=f"{
+        load_json(
+            'mcp_project/mcp_function_descriptions/create_ecuc_container_with_parameters.json'
+            )[DESCRIPTION]
+        }"
 )
 def create_ecuc_container_with_parameters(path: str, names: dict, parameters: dict = {}):
     """
@@ -268,9 +257,11 @@ def create_ecuc_container_with_parameters(path: str, names: dict, parameters: di
     return data
 
 @app.tool(
-    description="""
-    Get available ECUC containers for a given definition path.
-    """
+    description=f"{
+        load_json(
+            'mcp_project/mcp_function_descriptions/get_available_containers.json'
+            )[DESCRIPTION]
+            }"
 )
 def get_available_containers(definition_path: str):
     """

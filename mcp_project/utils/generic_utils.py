@@ -27,6 +27,9 @@ def error(message):
     print(f"\033[91m[ERROR] {message}\033[0m")
 
 def export2json(filename, data, indent: int = 4, use_tabs: bool = False):
+    """
+    Export data to a JSON file with optional indentation and tab usage.
+    """
     # Convert VersionObject instances to dictionaries for JSON serialization
     if isinstance(data, list):
         result_dict = [item.model_dump() if hasattr(item, 'model_dump') else item for item in data]
@@ -58,7 +61,9 @@ def export2json(filename, data, indent: int = 4, use_tabs: bool = False):
     info(f"Exported successfully to {filename}")
 
 def get_keys(data: dict) -> set:
-    """Recursively get all keys in a nested dictionary."""
+    """
+    Recursively get all keys in a nested dictionary.
+    """
     keys = set()
     if isinstance(data, dict):
         for key, value in data.items():
@@ -70,6 +75,9 @@ def get_keys(data: dict) -> set:
     return keys
 
 def load_json(file_path: str):
+    """
+    Load JSON content from a file.
+    """
     import json
     with open(file_path, 'r') as f:
         data = json.load(f)
@@ -81,16 +89,24 @@ def get_precise_time():
     """
     return datetime.now()
 
-def test_utils():
-    info("This is an info message.")
-    debug("This is a debug message.")
-    error("This is an error message.")
-
 def strip_result(result: str) -> str:
     if result:
         split_char = '\\' if '\\' in result[0]['file'] else '/'
         return result[0]['file'].split(split_char)[-1].lower()
     return None
+
+def load_txt(file_path: str) -> str:
+    """
+    Load text content from a file.
+    """
+    with open(file_path, 'r') as f:
+        data = f.read()
+    return data
+
+def test_utils():
+    info("This is an info message.")
+    debug("This is a debug message.")
+    error("This is an error message.")
 
 if __name__ == "__main__":
     test_utils()

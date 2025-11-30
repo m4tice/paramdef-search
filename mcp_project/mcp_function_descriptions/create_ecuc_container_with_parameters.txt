@@ -1,0 +1,22 @@
+Create an ECUC container JSON for a given definition `path` and `names` mapping, and parameters as optional.
+
+Input parameter name provided by user might be incorrect
+and deviate from its actual name defined in the ParamDef.
+Make sure MCP tools like `get_definition_file_from_keyword`
+and `get_precise_definition_path_using_rapidfuzz` are used
+to get the correct tag name before proceeding with the next steps.
+
+After which, Caller MUST perform two MCP calls in this order:
+1) `get_available_containers(path)` — discover existing container instances
+        for each element in the `path` and obtain the available shortNames.
+2) `create_ecuc_container_with_parameters(path, names, parameters)` — create the requested container.
+
+Behavior expectations:
+- The caller is responsible for filling any missing parent names using
+    the results of `get_available_containers(path)` before calling this tool.
+- Keys in `names` are matched case-insensitively; provided values are
+    used verbatim as the new shortName for the target element.
+- If the caller does not resolve parent names prior to calling this tool,
+    the create operation may fail or produce unintended results.
+- To implement an alternate resolution policy, call `get_available_containers`
+    yourself and compute the desired parent names prior to calling this tool.

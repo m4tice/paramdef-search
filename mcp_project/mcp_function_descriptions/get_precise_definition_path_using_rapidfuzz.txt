@@ -1,0 +1,4 @@
+Get definition path, etc. for a given keyword using RapidFuzz.
+Number of results and cutoff can be adjusted.
+Default is 1 result, increased number may return multiple close matches.
+Default cutoff 0.6.

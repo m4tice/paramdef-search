@@ -8,6 +8,8 @@ STDIO = "stdio"
 SSE = "sse"
 PROTOCOL = "PROTOCOL"
 PORT = "PORT"
+DESCRIPTION = "description"
+DOCSTRING = "docstring"
 
 # User settings from this point onward
 SETTINGS = {

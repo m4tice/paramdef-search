@@ -1,0 +1,1 @@
+Get response instructions for CoPilot from a given prompt.

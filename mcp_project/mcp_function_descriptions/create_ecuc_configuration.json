@@ -1,0 +1,3 @@
+{
+    "description": "Create ECUC configuration in JSON format for a given path and names mapping.\n1. Path is a '/' separated string representing ECUC hierarchy.\nIt should be taken from get_precise_definition_path_using_rapidfuzz.\nIt should contain parts that are taken from get_definition or known ECUC parts.\n2. Names is a dictionary mapping ECUC parts to desired names.\nThe tool generates nested JSON structure representing the ECUC configuration.\nExample:\nPrompt: Create ComIPdu with the name ESP_19.\nGiven path: '/com/comconfig/comipdu'\nAnd names: {\"comipdu\": \"ESP_19\"}"
+}
