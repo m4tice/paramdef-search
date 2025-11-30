@@ -13,10 +13,14 @@ def main():
     input_shortNameDict = {"ComGeneral": "ComGeneral"}
     
     # Create container without parameters
-    configurator.create_container(input_definitionPath, input_shortNameDict)
+    # configurator.create_container(input_definitionPath, input_shortNameDict)
     
-    # Validate generated data
-    validation_data = load_json("tests/container_without_parameters.json")
+    # Create container with parameters
+    parameters = {
+        "ComIPduDirection" : "RECEIVE",
+        "ComIPduSignalProcessing" : "IMMEDIATE",
+    }
+    configurator.create_container_with_parameter(input_definitionPath, input_shortNameDict, parameters)
     
     export2json("_out/comgeneral.json", configurator.get_data())
 
