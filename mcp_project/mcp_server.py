@@ -176,7 +176,7 @@ def create_ecuc_configuration(path: str, names: dict):
     Given path: "/com/comconfig/comipdu"
     And names: {"comipdu": "ESP_19"}
     """
-    from ecuc_configurator import ECUCConfigurator
+    from mcp_project.ecuc_creator.ecuc_configurator import ECUCConfigurator
 
     # Normalize names keys to lowercase for case-insensitive matching
     names = {k.lower(): v for k, v in names.items()}
@@ -222,7 +222,7 @@ def create_ecuc_container(path: str, names: dict):
     container to the `_out` directory. If any parents are missing from `names`,
     the caller should re-run discovery and provide explicit names.
     """
-    from ecuc_configurator import ECUCConfiguratorV2
+    from mcp_project.ecuc_creator.ecuc_configurator import ECUCConfiguratorV2
 
     # Normalize names keys to lowercase for case-insensitive matching
     names = {k.lower(): v for k, v in names.items()}

@@ -3,7 +3,7 @@ Sandbox
 """
 
 from mcp_project.utils.generic_utils import export2json, load_json
-from mcp_project.ecuc_configurator import ECUCConfiguratorV2
+from mcp_project.ecuc_creator.ecuc_configurator import ECUCConfiguratorV2
 
 def main():
     configurator = ECUCConfiguratorV2()
