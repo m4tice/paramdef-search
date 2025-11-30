@@ -187,51 +187,40 @@ def create_ecuc_configuration(path: str, names: dict):
     return config
 
 @app.tool(
-        description="""
-            Create an ECUC container JSON for a given definition `path` and
-            `names` mapping.
+    description="""
+                Create an ECUC container JSON for a given definition `path` and `names` mapping.
 
-            Important behavior and guarantees:
-            - Callers should obtain the exact definition path (including proper
-                letter case) using `get_precise_definition_path_using_rapidfuzz` before
-                calling this tool.
-            - `names` is a mapping of definition part names to desired shortNames.
-                The MCP tool performs case-insensitive matching and normalizes the
-                mapping keys to lowercase before processing. Mapping *values*
-                (the short names) keep their letter case unchanged.
-            - Because keys are normalized, the output JSON may contain lowercase
-                keys (this is intentional). If you require exact-case keys in the
-                output (for example `ComIPdu` rather than `comipdu`), perform a
-                deterministic post-processing step that renames keys using the same
-                mapping you supplied.
+                Caller MUST perform two MCP calls in this order:
+                1) `get_available_containers(path)` — discover existing container instances
+                     for each element in the `path` and obtain the available shortNames.
+                2) `create_ecuc_container(path, names)` — create the requested container.
 
-            Example (recommended flow):
-            1) Use `get_precise_definition_path_using_rapidfuzz("ComIPdu")` to get
-                    `Com/ComConfig/ComIPdu`.
-            2) Call this tool with `path="Com/ComConfig/ComIPdu"` and
-                    `names={"ComIPdu": "ESP_19"}`. The tool will match case-
-                    insensitively and place the shortName value `ESP_19` into the
-                    generated container. If you need `ComIPdu` as the JSON key, rename
-                    it after the call.
-        """
+                Behavior expectations:
+                - The caller is responsible for filling any missing parent names using
+                    the results of `get_available_containers(path)` before calling this tool.
+                - Keys in `names` are matched case-insensitively; provided values are
+                    used verbatim as the new shortName for the target element.
+                - If the caller does not resolve parent names prior to calling this tool,
+                    the create operation may fail or produce unintended results.
+                - To implement an alternate resolution policy, call `get_available_containers`
+                    yourself and compute the desired parent names prior to calling this tool.
+    """
 )
 def create_ecuc_container(path: str, names: dict):
     """
-    Create an ECUC container JSON for a given `path` and `names` map.
+        Create an ECUC container JSON for a given `path` and `names` map.
 
-    Behavior:
-    - Mapping keys in `names` are normalized to lowercase for case-insensitive
-        matching. Provide keys in any case; the tool will match them.
-    - Mapping values (short names) preserve their letter case and are used
-        verbatim in the output.
-    - If you require exact-case definition keys in the generated JSON, rename
-        the keys in a deterministic post-processing step after this function
-        returns. The tool intentionally normalizes keys to avoid ambiguous
-        lookups during configuration creation.
+        IMPORTANT: This function expects the caller to have called
+        `get_available_containers(path)` first and to supply a `names` mapping where
+        parent elements (if any) have been filled in using the discovery results.
+        Example flow:
+            - call `get_available_containers('Com/ComConfig/ComIPdu')` -> {
+                    'Com': ['Com'], 'ComConfig': ['ComConfig_0'], ... }
+            - call `create_ecuc_container('Com/ComConfig/ComIPdu', {'ComIPdu': 'ESP_21_Rx', 'ComConfig': 'ComConfig_0'})`
 
-    Recommended usage:
-    1) Retrieve the definition path using `get_precise_definition_path_using_rapidfuzz`.
-    2) Call this tool with the returned `path` and `names={"ComIPdu": "ESP_19"}`.
+        The tool will treat keys case-insensitively and will write the created
+        container to the `_out` directory. If any parents are missing from `names`,
+        the caller should re-run discovery and provide explicit names.
     """
     from ecuc_configurator import ECUCConfiguratorV2
 
@@ -245,6 +234,20 @@ def create_ecuc_container(path: str, names: dict):
     data = configurator.get_data()
     export2json(filename, data)
     return data
+
+@app.tool(
+        description="""
+            Get available ECUC containers for a given definition path.
+        """
+)
+def get_available_containers(definition_path: str):
+    """
+    Get available ECUC containers.
+    """
+    from mcp_dummy_data import ecuc, explore_tree
+
+    return explore_tree(ecuc, definition_path)
+    
 
 if __name__ == "__main__":
     # Reconfigure mcp.json
