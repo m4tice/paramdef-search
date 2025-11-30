@@ -93,8 +93,10 @@ def get_task_instructions():
             If parameters are provided, ensure they are included in the creation process.
             If no parameters are specified, proceed with default settings.
             The user may provide parameters with incorrect names.
-            Therefore those parameters must be validated using mcp tools
-            `get_definition_file_from_keyword` and `get_precise_definition_path_using_rapidfuzz`
+            Therefore those parameters must be validated using mcp tools such as
+            `get_precise_definition_path_using_rapidfuzz` to get the correct definition path,
+            or `get_definition_file_from_keyword` to get the definition file
+            and use `parse_paramdef_to_json` to read its content
             to retrieve the correct parameter names before proceeding.
             To avoid multiple files, create all related containers in a single request.
             """
