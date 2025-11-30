@@ -1,3 +1,36 @@
+# General
+.vscode/
+__pycache__/
+*.pyc
+.pytest_cache/
+.mypy_cache/
+
+# macOS
+.DS_Store
+.DS_Store?
+.AppleDouble/
+._*
+Icon\r
+Network Trash Folder
+Temporary Items
+.Trashes
+__MACOSX/
+.Spotlight-V100
+.fseventsd
+
+# Thumbs and thumbnails
+ehthumbs.db
+Thumbs.db
+
+# Python virtual env
+venv/
+env/
+.venv/
+
+# Distribution/build
+dist/
+build/
+*.egg-info/
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]
