@@ -63,6 +63,26 @@ def provide_response_instructions():
 
 @app.tool(
     description="""
+        Provide instructions for some specific common tasks.
+        Common tasks may include:
+        1. Creating ECUC configurations.
+    """
+)
+def provide_task_instructions():
+    instructions = {
+        "create_ecuc_configuration": (
+            """Before creating an ECUC configuration, call the get_all_containers tool
+            to retrieve all containers, as users may not provide all the names.
+            The strategy is to prioritize action on existing containers
+            if dedicated names are not explicitly provided.
+            Then use the `create_ecuc_configuration` tool
+            with reference to the retrieved containers."""
+        ),
+    }
+    return instructions
+
+@app.tool(
+    description="""
         Get the file contains generic knowledge
         such as parameter definition, definition path,
         multiplicity, etc.
